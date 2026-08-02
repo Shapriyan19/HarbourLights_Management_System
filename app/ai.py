@@ -12,13 +12,8 @@ from .cleaning import money
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-# "gemini-2.5-flash" is no longer served to new API keys (404 NOT_FOUND).
-# "gemini-flash-latest" is the maintained alias that always points at the
-# current stable Flash model, so drafts & Q&A keep working across model retirements.
 DEFAULT_MODEL = "gemini-flash-latest"
 
-# Last error from a live call, so the UI can explain *why* AI fell back to
-# templates instead of silently pretending everything is fine.
 _LAST_ERROR: str | None = None
 
 
