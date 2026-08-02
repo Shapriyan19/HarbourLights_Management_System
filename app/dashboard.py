@@ -5,6 +5,7 @@ Run:  streamlit run app/dashboard.py
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sys
@@ -106,7 +107,14 @@ st.sidebar.caption("Donor management")
 uploaded = st.sidebar.file_uploader("Import spreadsheet (.xlsx)", type=["xlsx"])
 if uploaded:
     tmp = DATA_DIR / "_uploaded.xlsx"
-    tmp.write_bytes(uploaded.getbuffer())
+    data = uploaded.getbuffer()
+    # Only rewrite when the bytes actually change. The uploader hands us the
+    # file on every rerun; blindly rewriting bumps mtime and busts the data
+    # cache each interaction, re-running the full cleaning pass needlessly.
+    new_hash = hashlib.md5(data).digest()
+    if (not tmp.exists()
+            or hashlib.md5(tmp.read_bytes()).digest() != new_hash):
+        tmp.write_bytes(data)
     active_path = str(tmp)
 else:
     active_path = str(DEFAULT_FILE)
